@@ -1,0 +1,26 @@
+
+# Core
+pydantic>=2.0
+fastapi>=0.110
+uvicorn[standard]>=0.29
+python-dotenv>=1.0
+
+# LLM / RAG
+langchain>=0.2
+sentence-transformers>=3.0
+faiss-cpu>=1.8
+transformers>=4.43
+ragas>=0.1.7
+trulens-eval>=0.22.0
+
+# Data
+pandas>=2.2
+numpy>=1.26
+
+# UI
+streamlit>=1.36
+plotly>=5.22
+
+# Testing & Lint
+pytest>=8.2
+ruff>=0.5
