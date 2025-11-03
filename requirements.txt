@@ -7,7 +7,7 @@ python-dotenv>=1.0
 
 # LLM / RAG
 langchain>=0.2
-sentence-transformers>=3.0
+# sentence-transformers pinned; install after torch
 faiss-cpu>=1.8
 transformers>=4.43
 ragas>=0.1.7
