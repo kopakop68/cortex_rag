@@ -2,6 +2,8 @@ name: noop
 on:
   pull_request:
     branches: [ main ]
+  push:
+    branches: [ main, feature/* ]
 jobs:
   skip:
     runs-on: ubuntu-latest
