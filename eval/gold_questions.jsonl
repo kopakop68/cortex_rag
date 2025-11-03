@@ -1,0 +1,10 @@
+{"q":"Map this alert to ATT&CK techniques: suspicious PowerShell spawning cmd.exe with base64-encoded argument"}
+{"q":"Which ATT&CK techniques are commonly used for credential dumping on Windows? Provide 2–3 techniques with short reasoning."}
+{"q":"Suggest Sigma rules for detecting encoded PowerShell execution and explain why they match."}
+{"q":"Explain lateral movement via Remote Desktop (RDP) and list mitigations with citations."}
+{"q":"What ATT&CK technique is linked to LSASS memory access via comsvcs.dll and how can we detect it?"}
+{"q":"For AWS, which logs and Sigma rules help catch unauthorized access key usage?"}
+{"q":"Give mitigations for malicious use of WMI for remote execution on Windows with ATT&CK IDs."}
+{"q":"Relate common discovery commands (whoami, net user /domain, nltest) to ATT&CK and suggest detections."}
+{"q":"How to detect data exfiltration over HTTPS with living-off-the-land tools? Provide ATT&CK mapping + Sigma ideas."}
+{"q":"Which ATT&CK techniques cover persistence via Run Keys/Startup Folder and what detections apply?"}

@@ -1,0 +1,95 @@
+from fastapi import FastAPI
+from pydantic import BaseModel
+from api.prompt_templates import SYSTEM_PROMPT, build_user_prompt
+
+app = FastAPI(title="Cortex RAG API")
+
+class Query(BaseModel):
+    question: str
+
+@app.get("/health")
+def health():
+    return {"status": "ok"}
+
+# @app.post("/ask")
+# def ask(q: Query):
+#     # TODO: wire retriever + LLM; return citations
+# 
+# # api/main.py
+# import os
+# from pydantic import BaseModel
+# from typing import Optional, List, Dict, Any
+# from dotenv import load_dotenv
+# 
+# from indexer.retriever import Retriever
+# from api.llm import chat_once
+# 
+# load_dotenv()  # load .env
+# 
+# retriever = None
+# 
+# class AskRequest(BaseModel):
+#     q: str
+#     k: int = 5
+#     min_score: float = 0.0
+#     doc_type: str = "any"  # attack|sigma|yara|siem|any
+# 
+# @app.on_event("startup")
+# async def _startup():
+#     global retriever
+#     try:
+        retriever = Retriever()
+        print("[API] Retriever loaded for /ask")
+    except Exception as e:
+        print("[API] Retriever NOT loaded:", e)
+
+SYSTEM_PROMPT = """You are a Security Copilot. 
+Answer ONLY using the provided context. If the context is insufficient or irrelevant, say:
+"Insufficient context to answer reliably." 
+Always include citations using [source:TYPE][technique:ID] when available. Be concise and structured.
+"""
+
+def _format_context(chunks: List[Dict[str, Any]]) -> str:
+    # Turn retrieved chunks into a compact context block with source + technique_id
+    lines = []
+    for i, c in enumerate(chunks, start=1):
+        title = c.get("title") or ""
+        doc_type = c.get("doc_type") or ""
+        tid = c.get("technique_id") or ""
+        src = c.get("source") or ""
+        snip = (c.get("snippet") or "")[:800]
+        head = f"[{i}] ({doc_type}) {title}"
+        if tid: head += f" [{tid}]"
+        if src: head += f" <{src}>"
+        lines.append(head + "\n" + snip)
+    return "\n\n".join(lines)
+
+def _build_user_prompt(question: str, chunks: List[Dict[str, Any]]) -> str:
+    ctx = _format_context(chunks)
+    return f"""Question:
+{question}
+
+Context (use ONLY this information):
+{ctx}
+
+Requirements:
+- Start with a 2–3 line summary.
+- If applicable, list ATT&CK techniques as bullets: "TID — short name".
+- Provide practical detections/mitigations if relevant.
+- End with citations like: [source:attack][technique:T1003], [source:sigma].
+"""
+
+@app.post("/ask")
+async def ask(req: AskRequest):
+    if retriever is None:
+        return {"error": "retriever not loaded; build index then restart API."}
+    # 1) retrieve
+    hits = retriever.search(req.q, req.k, req.min_score, req.doc_type)
+    # 2) if no hits → polite refusal
+    if not hits:
+        return {"answer": "Insufficient context to answer reliably.", "results": []}
+    # 3) build prompt and call Groq
+    user_prompt = _build_user_prompt(req.q, hits)
+    answer = chat_once(SYSTEM_PROMPT, user_prompt, os.getenv("GROQ_MODEL"))
+    return {"answer": answer, "results": hits}
+
