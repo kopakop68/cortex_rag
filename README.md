@@ -47,6 +47,3 @@ streamlit run ui/app.py
 - Keep secrets in environment variables or GitHub Actions **Secrets**
 - Prompt‑injection and PII‑redaction guards (to be wired in API)
 - See [SECURITY.md](SECURITY.md)
-
-## License
-MIT
